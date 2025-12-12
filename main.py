@@ -69,8 +69,7 @@ def phragmen(votes, k):
     seats_allocated = 0
 
     # The amount of money each voter gets per loop.
-    # I chose 1/n because it's a very small growth rate that resulted in accurate results
-    growth_rate = 1 / n
+    growth_rate = 0.00000001
 
     while seats_allocated < k:
         # Distributing the money among the voters
