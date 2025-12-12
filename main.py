@@ -1,11 +1,26 @@
 def equal_shares(votes, k):
+    # Calculating the total number of votes
     n = sum(votes.values())
+
+    # A dictionary for the number of seats each party has
     government = {party: 0 for party in votes.keys()}
+
+    # The budget each supporter of a party has for that party
     budget_per_voter = {party: (k / n) for party in votes.keys()}
+
+    # The price of a candidate
     candidate_price = 1
+
+    # The price each supporter of a party has to pay for a candidate
     price_per_voter = {party: candidate_price / votes[party] for party in votes.keys()}
+
+    # The number of seats allocated thus far
     seats_allocated = 0
+
+    # List of parties whose supporters can afford a candidate
     affordable_party = list()
+
+    
     while seats_allocated < k:
         for party in votes.keys():
             if budget_per_voter[party] * votes[party] >= candidate_price:
@@ -25,7 +40,7 @@ def equal_shares(votes, k):
     government[list(government.keys())[0]] += k - seats_allocated
 
     for party in government.keys():
-        print(party, government[party])
+        print(party, ":", government[party])
     print(sum(government.values()))
 
 
@@ -35,7 +50,7 @@ def phragmen(votes, k):
     budget_per_voter = {party: 0 for party in votes.keys()}
     candidate_price = 1
     seats_allocated = 0
-    growth_rate = 1/n
+    growth_rate = 1 / n
 
     while seats_allocated < k:
         for party in votes.keys():
@@ -50,20 +65,17 @@ def phragmen(votes, k):
     government[list(government.keys())[0]] += k - seats_allocated
 
     for party in government.keys():
-        print(party, government[party])
+        print(party, ":", government[party])
     print(sum(government.values()))
 
 
 if __name__ == '__main__':
     votes = {
-        "Yesh Atid": 847435, "RZP": 516470,
-        "Ra'am": 194047, "National Unity": 432482, "Shas": 392964, "UTJ": 280194,
-        "Yisrael Beiteinu": 213687, "Likud": 1115336,  "Hadash-Ta'al": 178735,
-        "Labor": 175992
+        "Likud": 1115336, "Yesh Atid": 847435, "HaTzionut HaDatit": 516470, "National Unity": 432482, "Shas": 392964,
+        "United Torah Judaism": 280194, "Yisrael Beiteinu": 213687, "United Arab List": 194047,
+        "Hadash - Ta'al": 178735, "Labor": 175992
     }
     k = 120
-
-
 
     print("phragmen:")
     phragmen(votes, k)
