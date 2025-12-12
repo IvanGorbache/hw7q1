@@ -1,3 +1,6 @@
+import random
+
+
 def equal_shares(votes, k):
     # Calculating the total number of votes
     n = sum(votes.values())
@@ -17,53 +20,82 @@ def equal_shares(votes, k):
     # The number of seats allocated thus far
     seats_allocated = 0
 
-    # List of parties whose supporters can afford a candidate
-    affordable_party = list()
-
-    
     while seats_allocated < k:
-        for party in votes.keys():
-            if budget_per_voter[party] * votes[party] >= candidate_price:
-                affordable_party.append(party)
+        # Selecting all the parties whose voters can afford a seat
+        affordable_party = [party for party in votes.keys() if budget_per_voter[party] >= price_per_voter[party]]
+
+        # Breaking the loop if no supporter can afford their party
         if len(affordable_party) == 0:
             break
-        cheapest_party = affordable_party[0]
-        for party in affordable_party:
-            if price_per_voter[party] <= price_per_voter[cheapest_party]:
-                cheapest_party = party
+
+        # Selecting the cheapest affordable candidate
+        cheapest_party = min(affordable_party, key=lambda party: price_per_voter[party])
+
+        # Deducting the price per voter from the budget of the voters for the party
         budget_per_voter[cheapest_party] -= price_per_voter[cheapest_party]
+
+        # Allocating a seat for the party
         seats_allocated += 1
         government[cheapest_party] += 1
-        affordable_party.clear()
 
+    # Giving away the remaining seats randomly
+    while seats_allocated < k:
+        government[random.choice(list(government.keys()))] += 1
+        seats_allocated += 1
+
+    # Ordering the parties by the number of seats
     government = dict(sorted(government.items(), key=lambda x: x[1], reverse=True))
-    government[list(government.keys())[0]] += k - seats_allocated
 
+    # Printing the results
     for party in government.keys():
         print(party, ":", government[party])
     print(sum(government.values()))
 
 
 def phragmen(votes, k):
+    # Calculating the total number of votes
     n = sum(votes.values())
+
+    # A dictionary for the number of seats each party has
     government = {party: 0 for party in votes.keys()}
+
+    # The current budget each voter for a party has
     budget_per_voter = {party: 0 for party in votes.keys()}
+
+    # The price per candidate
     candidate_price = 1
+
+    # The total number of seats allocated
     seats_allocated = 0
+
+    # The amount of money each voter gets per loop.
+    # I chose 1/n because it's a very small growth rate that resulted in accurate results
     growth_rate = 1 / n
 
     while seats_allocated < k:
+        # Distributing the money among the voters
         for party in votes.keys():
             budget_per_voter[party] += growth_rate
-        for party in votes.keys():
-            if budget_per_voter[party] * votes[party] >= candidate_price:
-                seats_allocated += 1
-                government[party] += 1
-                budget_per_voter[party] = 0
 
+        # Selecting all the parties whose voters can afford a seat
+        affordable_party = [party for party in votes.keys() if budget_per_voter[party]*votes[party] >= candidate_price]
+
+        # Skipping a loop if no affordable party exists
+        if len(affordable_party) == 0:
+            continue
+
+        # Giving the seat to the party with the most budget that can afford a candidate
+        chosen_party = max(affordable_party, key=lambda party: budget_per_voter[party])
+        seats_allocated += 1
+        government[chosen_party] += 1
+
+        # Resting the budget
+        budget_per_voter[chosen_party] = 0
+
+    # Ordering the parties by the number of seats
     government = dict(sorted(government.items(), key=lambda x: x[1], reverse=True))
-    government[list(government.keys())[0]] += k - seats_allocated
 
+    # Printing the results
     for party in government.keys():
         print(party, ":", government[party])
     print(sum(government.values()))
